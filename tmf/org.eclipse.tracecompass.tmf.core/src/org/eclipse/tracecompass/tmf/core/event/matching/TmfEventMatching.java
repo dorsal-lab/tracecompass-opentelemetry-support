@@ -84,13 +84,14 @@ public class TmfEventMatching implements ITmfEventMatching {
     private final Table<ITmfTrace, IEventMatchingKey, DependencyEvent> fUnmatchedOut = HashBasedTable.create();
 
     /**
-     * Hash tables matching the latest match between 2 hosts (sender, receiver) by
-     * key class
+     * Hash tables matching the latest match between 2 hosts (sender, receiver)
+     * by key class
      */
     private final Map<Class<? extends IEventMatchingKey>, Table<String, String, TmfEventDependency>> fLastMatches = new HashMap<>();
 
     /**
      * Enum for cause and effect types of event
+     *
      * @since 1.0
      */
     public enum Direction {
@@ -306,12 +307,13 @@ public class TmfEventMatching implements ITmfEventMatching {
                      * interfaces, sending and reception are not punctual
                      * events, but has a duration. We should follow the event
                      * through all its interfaces and maybe have a virtual event
-                     * to encompass the whole duration. More investigation needed
+                     * to encompass the whole duration. More investigation
+                     * needed
                      */
                     if (!companionEvent.getTrace().getHostId().equals(depEvent.getTrace().getHostId())) {
                         dep = new TmfEventDependency(depEvent, companionEvent);
                     } else {
-                        companionTbl.put(mTrace,  eventKey, companionEvent);
+                        companionTbl.put(mTrace, eventKey, companionEvent);
                     }
                     break;
                 default:
@@ -363,10 +365,11 @@ public class TmfEventMatching implements ITmfEventMatching {
     }
 
     private void cleanupList(@NonNull IEventMatchingKey eventKey, Map<String, TmfEventDependency> lastMatches, DependencyEvent lastDep, ToLongFunction<TmfEventDependency> mapToTime, Table<ITmfTrace, IEventMatchingKey, DependencyEvent> toClean) {
-     // Is there a match with all other hosts
+        // Is there a match with all other hosts
         long otherHosts = lastMatches.keySet().stream().filter(s -> !s.equals(lastDep.getTrace().getHostId())).count();
         if (otherHosts == fDistinctHosts.size() - 1) {
-            // A match has been found with all hosts, cleanup the previously sent packets for this trace
+            // A match has been found with all hosts, cleanup the previously
+            // sent packets for this trace
             long earliest = lastMatches.values().stream()
                     .mapToLong(mapToTime)
                     .min()

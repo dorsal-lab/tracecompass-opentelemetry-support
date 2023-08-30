@@ -16,6 +16,7 @@ package org.eclipse.tracecompass.tmf.core.synchronization;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -23,6 +24,7 @@ import org.eclipse.tracecompass.internal.tmf.core.Activator;
 import org.eclipse.tracecompass.tmf.core.component.TmfComponent;
 import org.eclipse.tracecompass.tmf.core.event.matching.ITmfEventMatching;
 import org.eclipse.tracecompass.tmf.core.event.matching.TmfEventMatching;
+import org.eclipse.tracecompass.tmf.core.event.matching.TmfTreeEventMatching;
 import org.eclipse.tracecompass.tmf.core.trace.ITmfTrace;
 
 /**
@@ -123,16 +125,20 @@ public abstract class SynchronizationManager extends TmfComponent {
 
     private static SynchronizationAlgorithm synchronize(final File syncFile,
             final Collection<@NonNull ITmfTrace> traces, SynchronizationAlgorithm syncAlgo) {
-        ITmfEventMatching matching = new TmfEventMatching(traces, syncAlgo);
-        matching.matchEvents();
+        ITmfEventMatching tmfBasicMatcher = new TmfEventMatching(traces, syncAlgo);
+        ITmfEventMatching treeMatcher = new TmfTreeEventMatching(traces, syncAlgo);
 
-        SynchronizationBackend syncBackend;
-        try {
-            syncBackend = new SynchronizationBackend(syncFile, false);
-            syncBackend.saveSync(syncAlgo);
-        } catch (IOException e) {
-            Activator.logError("Error while saving trace synchronization file", e); //$NON-NLS-1$
-        }
+        Arrays.asList(tmfBasicMatcher, treeMatcher).forEach(matcher -> {
+            matcher.matchEvents();
+            SynchronizationBackend syncBackend;
+            try {
+                syncBackend = new SynchronizationBackend(syncFile, false);
+                syncBackend.saveSync(syncAlgo);
+            } catch (IOException e) {
+                Activator.logError("Error while saving trace synchronization file", e); //$NON-NLS-1$
+            }
+        });
+
         return syncAlgo;
     }
 
